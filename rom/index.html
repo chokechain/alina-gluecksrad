@@ -3,86 +3,111 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Willkommen – Schnitzeljagd</title>
+  <title>Ciao Alina – Überraschung!</title>
   <link rel="stylesheet" href="../assets/common.css" />
   <link rel="stylesheet" href="assets/rom.css" />
 </head>
 <body>
+  <!-- Konfetti-Canvas -->
+  <canvas id="confetti-canvas" style="display:none;position:fixed;inset:0;pointer-events:none"></canvas>
+
   <div class="container">
     <div class="badge">Uschi-Design™</div>
-    <h1>Ciao Alina 🍻 – Bist du bereit für eine mini Schnitzeljagd?</h1>
-    <div class="marquee"><span>Ciao, Alina! • Andiamo? • </span></div>
+    <h1>Ciao Alina 👋 – Bist du bereit für eine mini Schnitzeljagd?</h1>
 
-    <div class="nav-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="marquee">
+      <span>
+        Ciao, Alina! 🎉 | Andiamo? | Forza, forza! | Dolce vita mode: ON | Una sorpresa ti aspetta! &nbsp;
+        Ciao, Alina! 🎉 | Andiamo? | Forza, forza! | Dolce vita mode: ON | Una sorpresa ti aspetta!
+      </span>
+    </div>
 
-    <section class="section">
-      <p>Klick dich durch bunte Hinweise. Am Ende wartet die Auflösung.</p>
+    <!-- Navigation dots -->
+    <div class="nav-dots" aria-label="Progress">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="section" id="s1">
+      <p>Klick dich durch bunte Hinweise. Am Ende wartet eine Überraschung. (Psst… niente paura!)</p>
       <div class="hint-emoji">🎁✨</div>
-      <div class="button-row"><a class="btn" data-next>👉 Weiter!</a></div>
+      <div class="button-row">
+        <button class="btn" data-next>👉 Weiter!</button>
+      </div>
+      <div class="audio-tip">🎶 Sarà perché ti amo – Ricchi e Poveri (läuft im Hintergrund)</div>
     </section>
 
-    <section class="section">
+    <!-- Section 2 -->
+    <section class="section" id="s2">
       <h2>Hinweis #1: Irgendwo startet immer alles…</h2>
       <p>Piep… Piep… Durchsage! Vielleicht ein Ort, wo Boardkarten wichtig sind? (Ma che sarà?)</p>
-      <div class="hint-emoji">🧳✈️🛫</div>
-      <div class="button-row"><a class="btn" data-prev>⬅️ Zurück</a><a class="btn" data-next>👉 Weiter!</a></div>
+      <div class="hint-emoji">🛄✈️🛫</div>
+      <div class="button-row">
+        <button class="btn" data-prev>⬅️ Zurück</button>
+        <button class="btn" data-next>👉 Weiter!</button>
+      </div>
     </section>
 
-    <section class="section">
+    <!-- Section 3 -->
+    <section class="section" id="s3">
       <h2>Hinweis #2: Forza! Forza!</h2>
       <p>Manchmal trägt man Startnummern, manchmal nur gute Schuhe. (Il ritmo chiama…)</p>
       <div class="hint-emoji">🏃‍♀️🔥🥇</div>
-      <div class="button-row"><a class="btn" data-prev>⬅️ Zurück</a><a class="btn" data-next>👉 Weiter!</a></div>
+      <div class="button-row">
+        <button class="btn" data-prev>⬅️ Zurück</button>
+        <button class="btn" data-next>👉 Weiter!</button>
+      </div>
     </section>
 
-    <section class="section">
+    <!-- Section 4 -->
+    <section class="section" id="s4">
       <h2>Hinweis #3: Un po’ d’Italia</h2>
       <p>Kohlenhydrate? Ma certo! Vielleicht 🍝 oder ein frischer Spritz 🍹… (Che sapore!)</p>
       <div class="hint-emoji">🍝🍊🥂</div>
-      <div class="button-row"><a class="btn" data-prev>⬅️ Zurück</a><a class="btn" data-next>👉 Weiter!</a></div>
+      <div class="button-row">
+        <button class="btn" data-prev>⬅️ Zurück</button>
+        <button class="btn" data-next>👉 Weiter!</button>
+      </div>
     </section>
 
-    <section class="section">
-      <h2>🎉 Finale!</h2>
-      <p>Wir fliegen <strong>nächstes Jahr</strong> in die <strong>Ewige Stadt</strong> – <strong>ROM</strong> wartet auf dich! 🇮🇹</p>
-      <div class="hint-emoji">🛫🏛️💘</div>
-      <div class="button-row"><a class="btn" data-prev>⬅️ Zurück</a></div>
+    <!-- Section 5 (Finale) -->
+    <section class="section" id="s5" data-finale="1">
+      <h2>🎉 Herzlichen Glückwunsch – Rätsel gelöst! 🎉</h2>
+      <p>
+        Trommelwirbel… ✨ Wir fliegen <strong>nächstes Jahr</strong> in die <strong>Ewige Stadt</strong>!
+        Pack die Laufschuhe ein: <strong>ROM &amp; MARATHON</strong> warten auf dich! 🇮🇹🏃‍♀️
+        <br><br><em>Buon compleanno, Alina!</em> – Auf Pasta-Glück, Aperol-Lachen und ganz viel Amore.
+      </p>
+      <div class="hint-emoji">🛫🏃‍♀️🏛️💘</div>
+      <div class="button-row">
+        <button class="btn" data-prev>⬅️ Zurück</button>
+      </div>
+      <footer>Made with 💖 &amp; Gelato • Buon compleanno il 18 ottobre!</footer>
     </section>
 
     <footer>Zurück zum Start: <a class="btn" href="../index.html">🏠</a></footer>
   </div>
 
+  <!-- Scripts -->
+  <script src="assets/confetti.js"></script>
   <script src="assets/rom.js"></script>
 
-<!-- 🔊 Musik: startet beim ersten Button-Klick (data-next/prev) -->
-<audio id="bgmusic" src="assets/sara.mp3" preload="auto" loop></audio>
-<script>
-  const music = document.getElementById('bgmusic');
-
-  function startMusic() {
-    if (!music || music.dataset.started === "1") return;
-    music.dataset.started = "1";
-    music.volume = 0;
-    const p = music.play();
-    if (p && p.catch) p.catch(()=>{});
-    let v = 0;
-    const fade = setInterval(() => {
-      v += 0.05;
-      if (v >= 0.9) { v = 0.9; clearInterval(fade); }
-      music.volume = v;
-    }, 200);
-  }
-
-  // Starte beim ersten Klick auf Weiter/Zurück (echte User-Geste)
-  document.querySelectorAll('[data-next],[data-prev]').forEach(el => {
-    el.addEventListener('click', startMusic, { once: true });
-  });
-
-  // Fallback: irgendein Klick/Enter/Space startet auch
-  document.addEventListener('click', startMusic, { once: true });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') startMusic();
-  }, { once: true });
-</script>
+  <!-- Hintergrundmusik: startet nach erstem Klick -->
+  <audio id="bgmusic" src="assets/sara.mp3" preload="auto" loop></audio>
+  <script>
+    const music = document.getElementById('bgmusic');
+    document.addEventListener('click', () => {
+      if (music.paused) {
+        let vol = 0;
+        music.volume = 0;
+        music.play().catch(() => {});
+        const fadeIn = setInterval(() => {
+          vol += 0.05;
+          if (vol >= 0.9) { vol = 0.9; clearInterval(fadeIn); }
+          music.volume = vol;
+        }, 200);
+      }
+    }, { once: true });
+  </script>
 </body>
 </html>
