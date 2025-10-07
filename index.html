@@ -6,48 +6,16 @@
   <title>Überraschung – Dreh das Rad!</title>
   <link rel="stylesheet" href="assets/common.css" />
   <style>
-    .wheel-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-      margin-top: 10px;
-      position: relative;
+    .wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px;position:relative}
+    .wheel{
+      width:min(520px,90vw);aspect-ratio:1;border-radius:50%;border:10px solid #000;position:relative;overflow:hidden;
+      box-shadow:0 10px 0 #000;
+      background:repeating-conic-gradient(#ff9ec4 0deg 30deg,#b3e5fc 30deg 60deg,#ffffff 60deg 90deg); /* 🍹/🍺/🎿 */
+      transition:transform 4.6s cubic-bezier(.2,.9,.2,1.02);
     }
-    .wheel {
-      width: min(520px, 90vw);
-      aspect-ratio: 1;
-      border-radius: 50%;
-      border: 10px solid #000;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 10px 0 #000;
-      /* 🍹 / 🍺 / 🎿 im Wechsel */
-      background: repeating-conic-gradient(
-        #ff9ec4 0deg 30deg,   /* Aperol */
-        #b3e5fc 30deg 60deg,  /* Bier */
-        #ffffff 60deg 90deg   /* Ski */
-      );
-      transition: transform 4.6s cubic-bezier(.2,.9,.2,1.02);
-    }
-    .needle {
-      width: 0;
-      height: 0;
-      border-left: 18px solid transparent;
-      border-right: 18px solid transparent;
-      border-bottom: 32px solid #000;
-      margin: 0 auto;
-    }
-    .em {
-      position: absolute;
-      font-size: 32px;
-      filter: drop-shadow(1px 1px 0 #000);
-    }
-    #spin {
-      position: relative;
-      z-index: 5;
-      pointer-events: auto;
-    }
+    .needle{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:32px solid #000;margin:0 auto}
+    .em{position:absolute;font-size:32px;filter:drop-shadow(1px 1px 0 #000)}
+    #spin{position:relative;z-index:5;pointer-events:auto}
   </style>
 </head>
 
@@ -67,70 +35,59 @@
     <footer>Made with 💖 by Dennis & Chaddy – VIEL ERFOLG! 🎉</footer>
   </div>
 
-  <!-- 🔊 Sounds -->
-  <audio id="s_jingle" src="assets/jingle.mp3" preload="auto"></audio>
-  <audio id="s_tadaa"  src="assets/tadaa.mp3" preload="auto"></audio>
+  <!-- 🔊 Hintergrundmusik (loop) – nimm assets/landing.mp3 wenn du willst -->
+  <audio id="bg" src="assets/jingle.mp3" preload="auto" loop autoplay muted playsinline></audio>
+  <!-- Effekt-Sounds -->
+  <audio id="s_tadaa"  src="assets/tadaa.mp3"  preload="auto"></audio>
   <audio id="s_cheers" src="assets/cheers.mp3" preload="auto"></audio>
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
     const wheelEl = document.getElementById('wheel');
-    const spinBtn  = document.getElementById('spin');
-    const sJ = document.getElementById('s_jingle');
-    const sT = document.getElementById('s_tadaa');
-    const sC = document.getElementById('s_cheers');
+    const spinBtn = document.getElementById('spin');
+    const bg      = document.getElementById('bg');
+    const sT      = document.getElementById('s_tadaa');
+    const sC      = document.getElementById('s_cheers');
 
     if (!wheelEl || !spinBtn) return;
 
-    // 12 Segmente: 🍹 / 🍺 / 🎿 im Wechsel
-    const segments = 12, segAngle = 360 / segments;
-    const emojis = ['🍹','🍺','🎿'];
-    for (let i = 0; i < segments; i++) {
-      const el = document.createElement('div');
-      el.className = 'em';
-      el.textContent = emojis[i % 3];
-      const a = (i * segAngle) * Math.PI / 180;
-      const R = 0.38;
-      el.style.left = (50 + Math.sin(a) * R * 100) + '%';
-      el.style.top  = (50 - Math.cos(a) * R * 100) + '%';
-      el.style.transform = 'translate(-50%,-50%)';
+    // Emojis setzen
+    const segments=12, segAngle=360/segments, emojis=['🍹','🍺','🎿'];
+    for(let i=0;i<segments;i++){
+      const el=document.createElement('div'); el.className='em'; el.textContent=emojis[i%3];
+      const a=(i*segAngle)*Math.PI/180, R=.38;
+      el.style.left=(50+Math.sin(a)*R*100)+'%';
+      el.style.top =(50-Math.cos(a)*R*100)+'%';
+      el.style.transform='translate(-50%,-50%)';
       wheelEl.appendChild(el);
     }
 
-    function play(a){ try{ a.currentTime=0; a.volume=0.9; const p=a.play(); if(p&&p.catch) p.catch(()=>{});}catch(e){} }
-    function jingleOnce(){ if(sJ && sJ.dataset.played!=='1'){ sJ.dataset.played='1'; play(sJ);} }
+    // Hintergrundmusik: stumm starten, beim ersten User-Impuls entmuten
+    const tryPlay = () => { try{ const p=bg.play(); if(p&&p.catch)p.catch(()=>{});}catch{} };
+    const unmute  = () => { try{ bg.muted=false; bg.volume=.9; tryPlay(); }catch{} };
+    tryPlay(); // startet muted (autoplay erlaubt)
+    ['click','touchstart','pointerdown','keydown'].forEach(ev=>{
+      window.addEventListener(ev,function once(){ unmute(); window.removeEventListener(ev,once,{capture:false}); },{once:true,passive:true});
+    });
 
-    window.addEventListener('load', () => setTimeout(jingleOnce, 400));
-    ['click','pointerdown','touchstart','keydown'].forEach(ev =>
-      document.addEventListener(ev, jingleOnce, { once:true, passive:true })
-    );
+    // Drehen
+    let spinning=false;
+    spinBtn.addEventListener('click', ()=>{
+      if(spinning) return; spinning=true; unmute(); // sicherstellen, dass Musik läuft
 
-    let spinning = false;
-    spinBtn.addEventListener('click', () => {
-      if (spinning) return;
-      spinning = true;
+      const k=Math.floor(Math.random()*segments);
+      const turns=6+Math.random()*2;
+      const targetDeg=(segments-k)*segAngle - segAngle/2;
+      const angle=360*turns+targetDeg;
+      wheelEl.style.transform=`rotate(${angle.toFixed(2)}deg)`;
 
-      const k = Math.floor(Math.random() * segments);     // 0..11
-      const turns = 6 + Math.random() * 2;
-      const targetDeg = (segments - k) * segAngle - segAngle / 2;
-      const angle = 360 * turns + targetDeg;
+      setTimeout(()=>{ if(k%3===0) sT?.play().catch(()=>{}); else if(k%3===1) sC?.play().catch(()=>{}); },3800);
 
-      wheelEl.style.transform = `rotate(${angle.toFixed(2)}deg)`;
-
-      // kurzer Effekt-Sound
-      setTimeout(() => {
-        if (k % 3 === 0 && sT) play(sT);      // 🍹 Rom
-        else if (k % 3 === 1 && sC) play(sC); // 🍺 London
-        else if (sJ) play(sJ);                // 🎿 Ski
-      }, 3800);
-
-      // Weiterleitung
-      setTimeout(() => {
-        try { sJ && sJ.pause(); } catch(e) {}
-        if (k % 3 === 0)      location.href = 'rom/index.html';
-        else if (k % 3 === 1) location.href = 'london/index.html#autoplay=1';
-        else                  location.href = 'ski/index.html#autoplay=1';
-      }, 4700);
+      setTimeout(()=>{
+        if(k%3===0)      location.href='rom/index.html';
+        else if(k%3===1) location.href='london/index.html#autoplay=1';
+        else             location.href='ski/index.html#autoplay=1';
+      },4700);
     });
   });
   </script>
