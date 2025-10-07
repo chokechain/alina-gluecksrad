@@ -1,422 +1,137 @@
- <title>Überraschung – Dreh das Rad!</title>
-
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Überraschung – Dreh das Rad!</title>
   <link rel="stylesheet" href="assets/common.css" />
-
   <style>
-
-
-    .wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px}
-
-
-    .wheel{
-
-
-      width:min(520px,90vw);aspect-ratio:1;border-radius:50%;border:10px solid #000;position:relative;overflow:hidden;
-
-
-      box-shadow:0 10px 0 #000;
-
-
-      background:repeating-conic-gradient(#ff9ec4 0deg 30deg,#b3e5fc 30deg 60deg); /* Aperol/Bier im Wechsel */
-
-
-      transition:transform 4.6s cubic-bezier(.2,.9,.2,1.02);
-
-
     .wheel-wrap {
-
-
       display: flex;
-
-
       flex-direction: column;
-
-
       align-items: center;
-
-
       gap: 18px;
-
-
       margin-top: 10px;
-
-
     }
-
-
     .wheel {
-
-
       width: min(520px, 90vw);
-
-
       aspect-ratio: 1;
-
-
       border-radius: 50%;
-
-
       border: 10px solid #000;
-
-
       position: relative;
-
-
       overflow: hidden;
-
-
       box-shadow: 0 10px 0 #000;
-
-
       background: repeating-conic-gradient(#ff9ec4 0deg 30deg, #b3e5fc 30deg 60deg); /* 🍹/🍺 Wechsel */
-
-
       transition: transform 4.6s cubic-bezier(.2,.9,.2,1.02);
-
-
     }
-
-
     .needle {
-
-
       width: 0;
-
-
       height: 0;
-
-
       border-left: 18px solid transparent;
-
-
       border-right: 18px solid transparent;
-
-
       border-bottom: 32px solid #000;
-
-
       margin: 0 auto;
-
-
     }
-
-
     .em {
-
-
       position: absolute;
-
-
       font-size: 32px;
-
-
       filter: drop-shadow(1px 1px 0 #000);
-
     }
-
-
-    .needle{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:32px solid #000;margin:0 auto}
-
-
-    .em{position:absolute;font-size:32px;filter:drop-shadow(1px 1px 0 #000)}
-
-
-
-
-
-    /* Overlay für sicheren Jingle-Start */
-
-
-    #soundGate{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999}
-
-
-    #soundGate .card{background:#fff;border:4px solid #000;border-radius:14px;padding:18px 22px;text-align:center}
-
-
-    #soundGate button{margin-top:10px}
-
   </style>
-
 </head>
 
-
-
 <body>
-
-
-  <!-- Sound-Start-Overlay -->
-
-
-  <div id="soundGate">
-
-
-    <div class="card">
-
-
-      <div style="font-size:22px;font-weight:800">🔊 Geburtstags-Jingle abspielen?</div>
-
-
-      <div style="margin-top:6px">Einmal tippen, dann kannst du drehen 🎉</div>
-
-
-      <button class="btn" id="gateBtn">Jingle starten</button>
-
-
-    </div>
-
-
-  </div>
-
-
-
-
   <div class="container">
-
-    <div class="badge">Uschi-Design™</div>
-
+    <div class="badge">Design by Dennis™</div>
     <h1>Dreh das Glücksrad! 🎯</h1>
-
-
-    <div class="marquee"><span>🍹 oder 🍺 — keine Spoiler — nur drehen! — </span></div>
-
-
     <div class="marquee"><span>🍹 oder 🍺 — nimm dein Glück selbst in die Hand! — </span></div>
-
     <p>Rundum alternierend: Aperol, Bier, Aperol, Bier …</p>
 
-
-
     <div class="needle" aria-hidden="true"></div>
-
-@@ -45,18 +53,19 @@ <h1>Dreh das Glücksrad! 🎯</h1>
-
+    <div class="wheel-wrap">
+      <div class="wheel" id="wheel" aria-label="Glücksrad mit alternierenden Feldern"></div>
       <button class="btn" id="spin">🎲 Drehen!</button>
-
     </div>
 
-
-
-
-    <footer>Made with 💖 • Viel Spaß!</footer>
-
-
     <footer>Made with 💖 from chaddy und dennis • Viel Spaß!</footer>
-
   </div>
 
-
-
   <!-- 🔊 Sounds -->
-
-
-  <audio id="s_jingle" src="assets/start_jingle.mp3" preload="auto"></audio>
-
-
   <audio id="s_jingle" src="assets/jingle.mp3" preload="auto"></audio>
-
   <audio id="s_tadaa"  src="assets/tadaa.mp3" preload="auto"></audio>
-
   <audio id="s_cheers" src="assets/cheers.mp3" preload="auto"></audio>
 
-
-
   <script>
-
-
-    // 🌀 Glücksrad-Setup
-
-
     // 🌀 Glücksrad: 12 Segmente (🍹 Aperol / 🍺 Bier)
-
     const wheel = document.getElementById('wheel');
-
     const segments = 12, segAngle = 360 / segments;
 
-
-
-
     for (let i = 0; i < segments; i++) {
-
       const el = document.createElement('div');
-
       el.className = 'em';
+      el.textContent = (i % 2 === 0) ? '🍹' : '🍺';
+      const angle = (i * segAngle) * Math.PI / 180;
+      const R = 0.38;
+      el.style.left = (50 + Math.sin(angle) * R * 100) + '%';
+      el.style.top  = (50 - Math.cos(angle) * R * 100) + '%';
+      el.style.transform = 'translate(-50%, -50%)';
+      wheel.appendChild(el);
+    }
 
-@@ -73,37 +82,54 @@ <h1>Dreh das Glücksrad! 🎯</h1>
-
+    const spinBtn = document.getElementById('spin');
     const sJ = document.getElementById('s_jingle');
-
     const sT = document.getElementById('s_tadaa');
-
     const sC = document.getElementById('s_cheers');
 
-
-    const gate = document.getElementById('soundGate');
-
-
-    const gateBtn = document.getElementById('gateBtn');
-
-
-
-
-    function play(a){ try{ a.currentTime=0; a.volume=0.9; const p=a.play(); if(p&&p.catch) p.catch(()=>{});}catch(e){} }
-
-
     // 🔊 Jingle beim Öffnen (sicher + Fallback)
-
-
     function play(audio) {
-
-
       try {
-
-
         audio.currentTime = 0;
-
-
         audio.volume = 0.9;
-
-
         const p = audio.play();
-
-
         if (p && p.catch) p.catch(() => {});
-
-
       } catch(e) {}
-
-
     }
-
-
-
-
-    // 🔊 Jingle sicher über Nutzer-Geste starten
-
-
-    gateBtn.addEventListener('click', () => {
-
 
     function playJingleOnce() {
-
-
       if (sJ.dataset.played === "1") return;
-
-
       sJ.dataset.played = "1";
-
       play(sJ);
-
-
-      gate.style.display = 'none';
-
-
     }
 
-
-
-
-
     // Sofort + Fallback bei erster Nutzeraktion
-
-
     window.addEventListener('load', () => setTimeout(playJingleOnce, 400));
-
-
     ['click','pointerdown','touchstart','keydown'].forEach(ev => {
-
-
       document.addEventListener(ev, playJingleOnce, { once:true, passive:true });
-
     });
-
-
-
-
-    // 🎯 Drehen + Ergebnis-Sounds + Weiterleitung
-
 
     // 🎯 Drehen + Sounds + Weiterleitung
-
     let spinning = false;
-
     spinBtn.addEventListener('click', () => {
-
       if (spinning) return;
-
       spinning = true;
 
-
-
-
-      const k = Math.floor(Math.random() * segments); // 0..11
-
-
       const k = Math.floor(Math.random() * segments);
-
       const turns = 6 + Math.random() * 2;
-
       const targetDeg = (segments - k) * segAngle - segAngle / 2;
-
       const angle = 360 * turns + targetDeg;
-
       wheel.style.transform = `rotate(${angle.toFixed(2)}deg)`;
 
-
-
-
-      // Ergebnis-Sound kurz vor Redirect
-
-
-      setTimeout(() => { (k % 2 === 0) ? play(sT) : play(sC); }, 3800);
-
-
       // 🔊 Ergebnis-Sound kurz vor Ende
-
-
       setTimeout(() => {
-
-
         if (k % 2 === 0) play(sT); // 🍹 Aperol -> Rom
-
-
         else play(sC);             // 🍺 Bier   -> London
-
-
       }, 3800);
 
-
-
-
-      // Weiterleiten
-
-
       // 🔁 Weiterleitung nach Ende
-
       setTimeout(() => {
-
         try { sJ.pause(); } catch(e) {}
-
-
-        if (k % 2 === 0) window.location.href = 'rom/index.html';
-
-
-        else              window.location.href = 'london/index.html#autoplay=1';
-
-
         if (k % 2 === 0)
-
-
           window.location.href = 'rom/index.html';
-
-
         else
-
-
           window.location.href = 'london/index.html#autoplay=1';
-
       }, 4700);
-
     });
-
   </script>
-
+</body>
+</html>
