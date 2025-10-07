@@ -12,6 +12,7 @@
       align-items: center;
       gap: 18px;
       margin-top: 10px;
+      position: relative;
     }
     .wheel {
       width: min(520px, 90vw);
@@ -42,6 +43,11 @@
       font-size: 32px;
       filter: drop-shadow(1px 1px 0 #000);
     }
+    #spin {
+      position: relative;
+      z-index: 5;
+      pointer-events: auto;
+    }
   </style>
 </head>
 
@@ -67,54 +73,66 @@
   <audio id="s_cheers" src="assets/cheers.mp3" preload="auto"></audio>
 
   <script>
-    // 🌀 Glücksrad mit 12 Segmenten (🍹/🍺/🎿)
-    const wheel = document.getElementById('wheel');
-    const segments = 12, segAngle = 360 / segments;
-    const emojis = ['🍹', '🍺', '🎿']; // Reihenfolge
-    for (let i = 0; i < segments; i++) {
-      const el = document.createElement('div');
-      el.className = 'em';
-      el.textContent = emojis[i % 3];
-      const angle = (i * segAngle) * Math.PI / 180;
-      const R = 0.38;
-      el.style.left = (50 + Math.sin(angle) * R * 100) + '%';
-      el.style.top  = (50 - Math.cos(angle) * R * 100) + '%';
-      el.style.transform = 'translate(-50%, -50%)';
-      wheel.appendChild(el);
-    }
-
-    const spinBtn = document.getElementById('spin');
+  document.addEventListener('DOMContentLoaded', () => {
+    const wheelEl = document.getElementById('wheel');
+    const spinBtn  = document.getElementById('spin');
     const sJ = document.getElementById('s_jingle');
     const sT = document.getElementById('s_tadaa');
     const sC = document.getElementById('s_cheers');
 
-    function play(audio) {
-      try {
-        audio.currentTime = 0;
-        audio.volume = 0.9;
-        const p = audio.play();
-        if (p && p.catch) p.catch(() => {});
-      } catch(e) {}
+    if (!wheelEl || !spinBtn) return;
+
+    // 12 Segmente: 🍹 / 🍺 / 🎿 im Wechsel
+    const segments = 12, segAngle = 360 / segments;
+    const emojis = ['🍹','🍺','🎿'];
+    for (let i = 0; i < segments; i++) {
+      const el = document.createElement('div');
+      el.className = 'em';
+      el.textContent = emojis[i % 3];
+      const a = (i * segAngle) * Math.PI / 180;
+      const R = 0.38;
+      el.style.left = (50 + Math.sin(a) * R * 100) + '%';
+      el.style.top  = (50 - Math.cos(a) * R * 100) + '%';
+      el.style.transform = 'translate(-50%,-50%)';
+      wheelEl.appendChild(el);
     }
 
-    function playJingleOnce() {
-      if (sJ.dataset.played === "1") return;
-      sJ.dataset.played = "1";
-      play(sJ);
-    }
+    function play(a){ try{ a.currentTime=0; a.volume=0.9; const p=a.play(); if(p&&p.catch) p.catch(()=>{});}catch(e){} }
+    function jingleOnce(){ if(sJ && sJ.dataset.played!=='1'){ sJ.dataset.played='1'; play(sJ);} }
 
-    window.addEventListener('load', () => setTimeout(playJingleOnce, 400));
-    ['click','pointerdown','touchstart','keydown'].forEach(ev => {
-      document.addEventListener(ev, playJingleOnce, { once:true, passive:true });
-    });
+    window.addEventListener('load', () => setTimeout(jingleOnce, 400));
+    ['click','pointerdown','touchstart','keydown'].forEach(ev =>
+      document.addEventListener(ev, jingleOnce, { once:true, passive:true })
+    );
 
     let spinning = false;
     spinBtn.addEventListener('click', () => {
       if (spinning) return;
       spinning = true;
 
-      const k = Math.floor(Math.random() * segments);
+      const k = Math.floor(Math.random() * segments);     // 0..11
       const turns = 6 + Math.random() * 2;
       const targetDeg = (segments - k) * segAngle - segAngle / 2;
       const angle = 360 * turns + targetDeg;
-      wheel.style.transform = `rotate(${angle.toFixed(2)}deg)`;
+
+      wheelEl.style.transform = `rotate(${angle.toFixed(2)}deg)`;
+
+      // kurzer Effekt-Sound
+      setTimeout(() => {
+        if (k % 3 === 0 && sT) play(sT);      // 🍹 Rom
+        else if (k % 3 === 1 && sC) play(sC); // 🍺 London
+        else if (sJ) play(sJ);                // 🎿 Ski
+      }, 3800);
+
+      // Weiterleitung
+      setTimeout(() => {
+        try { sJ && sJ.pause(); } catch(e) {}
+        if (k % 3 === 0)      location.href = 'rom/index.html';
+        else if (k % 3 === 1) location.href = 'london/index.html#autoplay=1';
+        else                  location.href = 'ski/index.html#autoplay=1';
+      }, 4700);
+    });
+  });
+  </script>
+</body>
+</html>
