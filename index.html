@@ -1,32 +1,77 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Überraschung – Dreh das Rad!</title>
-  <link rel="stylesheet" href="assets/common.css" />
-  <style>
-    .wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px}
-    .needle{
-      width:0;height:0;margin:0 auto 8px;
-      border-left:18px solid transparent;border-right:18px solid transparent;border-top:32px solid #000; /* zeigt nach unten */
-    }
-    .wheel{
-      width:min(520px,90vw);aspect-ratio:1;border-radius:50%;
-      border:10px solid #000;position:relative;overflow:hidden;box-shadow:0 10px 0 #000;
-      background:repeating-conic-gradient(#ff9ec4 0deg 30deg,#b3e5fc 30deg 60deg,#ffffff 60deg 90deg); /* 🍹/🍺/🎿 */
-      transition:transform 4.6s cubic-bezier(.2,.9,.2,1.02);
-      --rot:0deg;
-    }
-    .em{
-      position:absolute;left:50%;top:50%;font-size:32px;filter:drop-shadow(1px 1px 0 #000);
-      transform:translate(-50%,-50%) rotate(calc(-1 * var(--rot))); /* gegenrotieren -> lesbar */
-      pointer-events:none;
-    }
-    #spin{position:relative;z-index:5}
-  </style>
-</head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Überraschung – Dreh das Rad!</title>
+<link rel="stylesheet" href="assets/common.css"/>
+<style>
+  :root{
+    --rim:#f4b000;           /* Goldrand */
+    --rim-dark:#e09500;
+    --base:#ff4a86;          /* Sockel */
+    --light-on:#ffeaa6;
+    --light-glow:rgba(255,255,200,.55);
+  }
+  .stage{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:10px}
+  /* Sockel */
+  .stand{
+    width:min(460px,82vw); height:46px; background:var(--base);
+    border-radius:22px; border:6px solid #000; box-shadow:0 10px 0 #000 inset;
+  }
+  /* Gehäuse mit Pointer */
+  .wheel-shell{position:relative; display:grid; place-items:center}
+  .pointer{
+    position:absolute; top:-50px; left:50%; transform:translateX(-50%);
+    width:74px; height:74px; border:8px solid #000; border-radius:50%;
+    background:linear-gradient(#ff4a86,#ff7aa6);
+    box-shadow:0 8px 0 #000;
+  }
+  .pointer::after{
+    content:""; position:absolute; left:50%; top:48%;
+    transform:translate(-50%,0);
+    width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:34px solid #00a6d6;
+    filter:drop-shadow(0 2px 0 #000);
+  }
+  .pointer::before{
+    content:""; position:absolute; inset:12px; border-radius:50%;
+    background:#c7f7ff; box-shadow:0 0 0 6px #00a6d6 inset;
+  }
 
+  /* Rad: Felge + Lichter + inneres Rad */
+  .rim{
+    width:min(520px,90vw); aspect-ratio:1; border-radius:50%;
+    background:radial-gradient(circle at 50% 50%, #ffd36c 0 48%, var(--rim) 48% 56%, var(--rim-dark) 56% 60%, transparent 60%);
+    border:10px solid #000; box-shadow:0 10px 0 #000;
+    position:relative; display:grid; place-items:center;
+  }
+  /* Lichter */
+  .bulb{position:absolute; width:20px;height:20px;border-radius:50%;
+        background:var(--light-on); border:4px solid #000; box-shadow:0 0 14px 6px var(--light-glow);}
+  /* inneres Rad */
+  .wheel{
+    width:78%; aspect-ratio:1; border-radius:50%;
+    background:repeating-conic-gradient(#ff9ec4 0deg 30deg, #b3e5fc 30deg 60deg, #ffffff 60deg 90deg);
+    border:10px solid #000; position:relative; overflow:hidden;
+    transition:transform 4.6s cubic-bezier(.2,.9,.2,1.02);
+    --rot:0deg;
+  }
+  .hub{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:120px; aspect-ratio:1; border-radius:50%;
+    background:radial-gradient(circle,#ffc84d 0 60%, #ffb400 60% 100%);
+    border:10px solid #000; display:grid;place-items:center; z-index:3;
+    box-shadow:0 6px 0 #000 inset;
+    font-size:48px; filter:drop-shadow(1px 1px 0 #000);
+  }
+  .em{
+    position:absolute; left:50%; top:50%; font-size:34px;
+    transform:translate(-50%,-50%) rotate(calc(-1 * var(--rot)));
+    filter:drop-shadow(1px 1px 0 #000); pointer-events:none;
+  }
+  #spin{position:relative;z-index:5}
+</style>
+</head>
 <body>
   <div class="container">
     <div class="badge">Design by Dennis™</div>
@@ -34,73 +79,92 @@
     <div class="marquee"><span>🍹 oder 🍺 oder 🎿 — keine Spoiler — nur drehen! — </span></div>
     <p>Aperol – Bier – Ski – im Wechsel rundherum.</p>
 
-    <div class="needle" aria-hidden="true"></div>
-    <div class="wheel-wrap">
-      <div class="wheel" id="wheel" aria-label="Glücksrad mit drei Feldern"></div>
+    <div class="stage">
+      <div class="wheel-shell">
+        <div class="pointer" aria-hidden="true"></div>
+        <div class="rim">
+          <div class="wheel" id="wheel" aria-label="Glücksrad"></div>
+          <div class="hub">⭐</div>
+        </div>
+      </div>
       <button class="btn" id="spin">🎲 Drehen!</button>
+      <div class="stand" aria-hidden="true"></div>
     </div>
 
     <footer>Made with 💖 by Dennis & Chaddy – VIEL ERFOLG! 🎉</footer>
   </div>
 
-  <!-- 🎵 Happy-Birthday (passt Dateiname an, falls anders) -->
+  <!-- 🎵 Happy-Birthday -->
   <audio id="bg" src="assets/happy_birthday.mp3" preload="auto" loop autoplay muted playsinline></audio>
   <!-- Effekt-Sounds -->
   <audio id="s_tadaa"  src="assets/tadaa.mp3"  preload="auto"></audio>
   <audio id="s_cheers" src="assets/cheers.mp3" preload="auto"></audio>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const wheel = document.getElementById('wheel');
-    const spin  = document.getElementById('spin');
-    const bg    = document.getElementById('bg');
-    const sT    = document.getElementById('s_tadaa');
-    const sC    = document.getElementById('s_cheers');
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const wheel = document.getElementById('wheel');
+  const spin  = document.getElementById('spin');
+  const bg    = document.getElementById('bg');
+  const sT    = document.getElementById('s_tadaa');
+  const sC    = document.getElementById('s_cheers');
 
-    if(!wheel || !spin) return;
-
-    // Emojis exakt auf Segmentzentren
-    const segments=12, seg=360/segments, emojis=['🍹','🍺','🎿'], R=0.40;
-    for(let i=0;i<segments;i++){
-      const el=document.createElement('div'); el.className='em'; el.textContent=emojis[i%3];
-      const center=i*seg+seg/2, a=center*Math.PI/180;
-      const x=Math.sin(a)*R*100, y=-Math.cos(a)*R*100;
-      el.style.left=`calc(50% + ${x}%)`; el.style.top=`calc(50% + ${y}%)`;
-      wheel.appendChild(el);
+  /* Lämpchen-Ring bauen */
+  (function addBulbs(){
+    const rim = document.querySelector('.rim');
+    const N = 18; // Anzahl Lampen
+    const R = 48; // Prozent vom Radius (außen)
+    for(let i=0;i<N;i++){
+      const b=document.createElement('div'); b.className='bulb';
+      const ang = (i/N)*360 * Math.PI/180;
+      const x = 50 + Math.sin(ang)*R;
+      const y = 50 - Math.cos(ang)*R;
+      b.style.left = `calc(${x}% - 10px)`; // 10px = radius bulb/2
+      b.style.top  = `calc(${y}% - 10px)`;
+      rim.appendChild(b);
     }
-    const setRot = deg => { wheel.style.setProperty('--rot',deg+'deg'); wheel.style.transform=`rotate(${deg}deg)`; };
+  })();
 
-    // Hintergrundmusik: stumm starten, beim ersten User-Impuls entmuten
-    const tryPlay=()=>{ try{ const p=bg.play(); if(p&&p.catch)p.catch(()=>{});}catch{} };
-    const unmute =()=>{ try{ bg.muted=false; bg.volume=.9; tryPlay(); }catch{} };
-    tryPlay();
-    ['click','touchstart','pointerdown','keydown'].forEach(ev=>{
-      window.addEventListener(ev,function once(){ unmute(); window.removeEventListener(ev,once,{capture:false}); },{once:true,passive:true});
-    });
+  /* Emojis exakt ins Segmentzentrum */
+  const segments=12, SEG=360/segments, emojis=['🍹','🍺','🎿'], r=33; // r in %
+  for(let i=0;i<segments;i++){
+    const el=document.createElement('div'); el.className='em'; el.textContent=emojis[i%3];
+    const center=i*SEG+SEG/2, a=center*Math.PI/180;
+    const x=50 + Math.sin(a)*r, y=50 - Math.cos(a)*r;
+    el.style.left=`${x}%`; el.style.top=`${y}%`;
+    wheel.appendChild(el);
+  }
+  const setRot = deg => { wheel.style.setProperty('--rot',deg+'deg'); wheel.style.transform=`rotate(${deg}deg)`; };
+  setRot(0);
 
-    // Drehen + korrektes Mapping (Zeiger zeigt nach unten -> +180°)
-    let spinning=false;
-    spin.addEventListener('click',()=>{
-      if(spinning) return; spinning=true; unmute();
-
-      const k = Math.floor(Math.random()*segments);     // 0..11
-      const turns = 6 + Math.random()*2;
-      const targetUp = (segments - k)*seg - seg/2;      // Zentrum unter die 12-Uhr-Position
-      const angle = 360*turns + targetUp + 180;         // +180°, weil Zeiger nach unten zeigt
-
-      setRot(angle);
-
-      setTimeout(()=>{ if(k%3===0) sT?.play().catch(()=>{}); else if(k%3===1) sC?.play().catch(()=>{}); },3800);
-
-      setTimeout(()=>{
-        if (k%3===0)      location.href='rom/index.html';
-        else if (k%3===1) location.href='london/index.html#autoplay=1';
-        else              location.href='ski/index.html#autoplay=1';
-      },4700);
-    });
-
-    setRot(0);
+  /* Musik: stumm starten → beim ersten User-Impuls entmuten */
+  const tryPlay=()=>{ try{ const p=bg.play(); if(p&&p.catch) p.catch(()=>{});}catch{} };
+  const unmute =()=>{ try{ bg.muted=false; bg.volume=.9; tryPlay(); }catch{} };
+  tryPlay();
+  ['click','touchstart','pointerdown','keydown'].forEach(ev=>{
+    window.addEventListener(ev,function once(){ unmute(); window.removeEventListener(ev,once,{capture:false}); },{once:true,passive:true});
   });
-  </script>
+
+  /* Drehen + korrektes Mapping (Zeiger oben → zeigt nach unten ⇒ +180°) */
+  let spinning=false;
+  spin.addEventListener('click',()=>{
+    if(spinning) return; spinning=true; unmute();
+
+    const k = Math.floor(Math.random()*segments); // 0..11
+    const turns = 6 + Math.random()*2;
+    const targetUp = (segments - k)*SEG - SEG/2;  // Segmentzentrum auf 12-Uhr
+    const angle = 360*turns + targetUp + 180;     // +180°, da Pointer nach unten zeigt
+
+    setRot(angle);
+
+    setTimeout(()=>{ if(k%3===0) sT?.play().catch(()=>{}); else if(k%3===1) sC?.play().catch(()=>{}); },3800);
+
+    setTimeout(()=>{
+      if (k%3===0)      location.href='rom/index.html';                 // 🍹 -> Rom
+      else if (k%3===1) location.href='london/index.html#autoplay=1';   // 🍺 -> London
+      else              location.href='ski/index.html#autoplay=1';      // 🎿 -> Ski
+    },4700);
+  });
+});
+</script>
 </body>
 </html>
