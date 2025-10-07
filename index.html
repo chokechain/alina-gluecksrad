@@ -6,42 +6,24 @@
   <title>Überraschung – Dreh das Rad!</title>
   <link rel="stylesheet" href="assets/common.css" />
   <style>
-    .wheel-wrap{
-      display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px
-    }
+    .wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px}
     .needle{
-      /* Dreieck, das NACH UNTEN zeigt */
-      width:0;height:0;
-      border-left:18px solid transparent;border-right:18px solid transparent;
-      border-top:32px solid #000; /* Spitze zeigt nach unten */
-      margin:0 auto 8px auto;
+      width:0;height:0;margin:0 auto 8px;
+      border-left:18px solid transparent;border-right:18px solid transparent;border-top:32px solid #000; /* zeigt nach unten */
     }
     .wheel{
-      width:min(520px,90vw);
-      aspect-ratio:1/1;                 /* garantiert kreisrund */
-      border-radius:50%;
-      border:10px solid #000;
-      position:relative; overflow:hidden;
-      box-shadow:0 10px 0 #000;
-      /* 🍹 / 🍺 / 🎿 im Wechsel */
-      background:repeating-conic-gradient(
-        #ff9ec4 0deg 30deg,   /* Aperol */
-        #b3e5fc 30deg 60deg,  /* Bier */
-        #ffffff 60deg 90deg   /* Ski  */
-      );
+      width:min(520px,90vw);aspect-ratio:1;border-radius:50%;
+      border:10px solid #000;position:relative;overflow:hidden;box-shadow:0 10px 0 #000;
+      background:repeating-conic-gradient(#ff9ec4 0deg 30deg,#b3e5fc 30deg 60deg,#ffffff 60deg 90deg); /* 🍹/🍺/🎿 */
       transition:transform 4.6s cubic-bezier(.2,.9,.2,1.02);
-      /* aktuelle Rotations-Variable für Emoji-Gegenrotation */
-      --rot: 0deg;
+      --rot:0deg;
     }
     .em{
-      position:absolute; left:50%; top:50%;
-      font-size:32px; filter:drop-shadow(1px 1px 0 #000);
-      /* zentrieren + GEGENROTATION, damit Emoji immer lesbar bleibt */
-      transform: translate(-50%,-50%) rotate(calc(-1 * var(--rot)));
-      will-change: transform;
+      position:absolute;left:50%;top:50%;font-size:32px;filter:drop-shadow(1px 1px 0 #000);
+      transform:translate(-50%,-50%) rotate(calc(-1 * var(--rot))); /* gegenrotieren -> lesbar */
       pointer-events:none;
     }
-    #spin{ position:relative; z-index:5; }
+    #spin{position:relative;z-index:5}
   </style>
 </head>
 
@@ -61,91 +43,63 @@
     <footer>Made with 💖 by Dennis & Chaddy – VIEL ERFOLG! 🎉</footer>
   </div>
 
-  <!-- 🔊 Sounds -->
-  <audio id="s_jingle" src="assets/jingle.mp3" preload="auto"></audio>
+  <!-- 🎵 Happy-Birthday (passt Dateiname an, falls anders) -->
+  <audio id="bg" src="assets/happy_birthday.mp3" preload="auto" loop autoplay muted playsinline></audio>
+  <!-- Effekt-Sounds -->
   <audio id="s_tadaa"  src="assets/tadaa.mp3"  preload="auto"></audio>
   <audio id="s_cheers" src="assets/cheers.mp3" preload="auto"></audio>
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const wheelEl = document.getElementById('wheel');
-    const spinBtn = document.getElementById('spin');
-    const sJ = document.getElementById('s_jingle');
-    const sT = document.getElementById('s_tadaa');
-    const sC = document.getElementById('s_cheers');
+    const wheel = document.getElementById('wheel');
+    const spin  = document.getElementById('spin');
+    const bg    = document.getElementById('bg');
+    const sT    = document.getElementById('s_tadaa');
+    const sC    = document.getElementById('s_cheers');
 
-    if(!wheelEl || !spinBtn) return;
+    if(!wheel || !spin) return;
 
-    // --- Emoji-Positionen exakt im Segment-Zentrum ---
-    const segments = 12;
-    const segAngle = 360 / segments;
-    const emojis = ['🍹','🍺','🎿'];
-    const R = 0.40; // Radius-Faktor (0..0.5), 0.40 sitzt schön im Segment
-
+    // Emojis exakt auf Segmentzentren
+    const segments=12, seg=360/segments, emojis=['🍹','🍺','🎿'], R=0.40;
     for(let i=0;i<segments;i++){
-      const el = document.createElement('div');
-      el.className = 'em';
-      el.textContent = emojis[i % 3];
-
-      // Mittelpunkt jedes Segments: i*seg + seg/2
-      const centerDeg = i*segAngle + segAngle/2;
-      const a = centerDeg * Math.PI / 180;
-
-      // absolute Position auf dem Rad (wir zentrieren via left/top:50%)
-      const x = Math.sin(a) * R * 100;
-      const y = -Math.cos(a) * R * 100;
-
-      el.style.left = `calc(50% + ${x}%)`;
-      el.style.top  = `calc(50% + ${y}%)`;
-      wheelEl.appendChild(el);
+      const el=document.createElement('div'); el.className='em'; el.textContent=emojis[i%3];
+      const center=i*seg+seg/2, a=center*Math.PI/180;
+      const x=Math.sin(a)*R*100, y=-Math.cos(a)*R*100;
+      el.style.left=`calc(50% + ${x}%)`; el.style.top=`calc(50% + ${y}%)`;
+      wheel.appendChild(el);
     }
+    const setRot = deg => { wheel.style.setProperty('--rot',deg+'deg'); wheel.style.transform=`rotate(${deg}deg)`; };
 
-    // Emoji immer lesbar halten: Gegenrotation anhand wheel-Variable --rot
-    function setWheelRotation(deg){
-      wheelEl.style.setProperty('--rot', deg + 'deg');
-      wheelEl.style.transform = `rotate(${deg}deg)`;
-    }
-
-    // --- Sound-Helfer ---
-    function play(a){ try{ a.currentTime=0; a.volume=0.9; const p=a.play(); if(p&&p.catch) p.catch(()=>{});}catch(e){} }
-    function jingleOnce(){ if(sJ && sJ.dataset.played!=='1'){ sJ.dataset.played='1'; play(sJ);} }
-    window.addEventListener('load', () => setTimeout(jingleOnce, 400));
-    ['click','pointerdown','touchstart','keydown'].forEach(ev =>
-      document.addEventListener(ev, jingleOnce, { once:true, passive:true })
-    );
-
-    // --- Drehen ---
-    let spinning = false;
-    spinBtn.addEventListener('click', () => {
-      if(spinning) return;
-      spinning = true;
-
-      const k = Math.floor(Math.random()*segments); // 0..11
-      const turns = 6 + Math.random()*2;
-      const targetDeg = (segments - k) * segAngle - segAngle/2; // Segmentzentrum nach oben
-      const angle = 360*turns + targetDeg;
-
-      // Rotation + Gegenrotation der Emojis (via CSS-Var --rot)
-      setWheelRotation(angle);
-
-      // kurzer Effekt-Sound
-      setTimeout(() => {
-        if (k % 3 === 0 && sT) play(sT);      // 🍹 Rom
-        else if (k % 3 === 1 && sC) play(sC); // 🍺 London
-        else if (sJ) play(sJ);                // 🎿 Ski
-      }, 3800);
-
-      // Weiterleitung nach Ende
-      setTimeout(() => {
-        try{ sJ && sJ.pause(); }catch(e){}
-        if (k % 3 === 0)      location.href = 'rom/index.html';
-        else if (k % 3 === 1) location.href = 'london/index.html#autoplay=1';
-        else                  location.href = 'ski/index.html#autoplay=1';
-      }, 4700);
+    // Hintergrundmusik: stumm starten, beim ersten User-Impuls entmuten
+    const tryPlay=()=>{ try{ const p=bg.play(); if(p&&p.catch)p.catch(()=>{});}catch{} };
+    const unmute =()=>{ try{ bg.muted=false; bg.volume=.9; tryPlay(); }catch{} };
+    tryPlay();
+    ['click','touchstart','pointerdown','keydown'].forEach(ev=>{
+      window.addEventListener(ev,function once(){ unmute(); window.removeEventListener(ev,once,{capture:false}); },{once:true,passive:true});
     });
 
-    // Startrotation sicher auf 0 halten
-    setWheelRotation(0);
+    // Drehen + korrektes Mapping (Zeiger zeigt nach unten -> +180°)
+    let spinning=false;
+    spin.addEventListener('click',()=>{
+      if(spinning) return; spinning=true; unmute();
+
+      const k = Math.floor(Math.random()*segments);     // 0..11
+      const turns = 6 + Math.random()*2;
+      const targetUp = (segments - k)*seg - seg/2;      // Zentrum unter die 12-Uhr-Position
+      const angle = 360*turns + targetUp + 180;         // +180°, weil Zeiger nach unten zeigt
+
+      setRot(angle);
+
+      setTimeout(()=>{ if(k%3===0) sT?.play().catch(()=>{}); else if(k%3===1) sC?.play().catch(()=>{}); },3800);
+
+      setTimeout(()=>{
+        if (k%3===0)      location.href='rom/index.html';
+        else if (k%3===1) location.href='london/index.html#autoplay=1';
+        else              location.href='ski/index.html#autoplay=1';
+      },4700);
+    });
+
+    setRot(0);
   });
   </script>
 </body>
