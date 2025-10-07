@@ -66,5 +66,66 @@
       }, 4700);
     });
   </script>
+  <!-- Sounds -->
+<audio id="s_jingle" src="assets/start_jingle.mp3" preload="auto"></audio>
+<audio id="s_tadaa"  src="assets/tadaa.mp3" preload="auto"></audio>
+<audio id="s_cheers" src="assets/cheers.mp3" preload="auto"></audio>
+
+<script>
+  // Elemente
+  const wheel  = document.getElementById('wheel');
+  const spinBtn= document.getElementById('spin');
+  const sJ     = document.getElementById('s_jingle');
+  const sTa    = document.getElementById('s_tadaa');
+  const sCh    = document.getElementById('s_cheers');
+
+  // --- Option 1: kurzer Jingle beim Start (wird beim ersten Klick abgespielt, falls Autoplay blockiert) ---
+  function playJingleOnce(){
+    if (sJ.dataset.played === "1") return;
+    sJ.dataset.played = "1";
+    sJ.volume = 0.9;
+    sJ.play().catch(()=>{});
+  }
+  // Versuch direkt, plus Fallback beim ersten Klick irgendwo
+  sJ.play().catch(()=>{});
+  document.addEventListener('click', playJingleOnce, { once:true });
+
+  // --- Spin-Logik (für dein 12-Segmente-Rad: Aperol/Bier im Wechsel) ---
+  let spinning = false;
+  const segments = 12, segAngle = 360/segments;
+
+  spinBtn.addEventListener('click', ()=>{
+    if (spinning) return;
+    spinning = true;
+
+    // Ergebnis wählen
+    const k = Math.floor(Math.random()*segments); // 0..11
+    const turns = 6 + Math.random()*2;
+    const targetDeg = (segments - k) * segAngle - segAngle/2; // Segmentzentrum nach oben
+    const angle = 360*turns + targetDeg;
+
+    // Drehen
+    wheel.style.transform = `rotate(${angle.toFixed(2)}deg)`;
+
+    // --- Option 3: kurzer Effekt beim Ergebnis, kurz bevor weitergeleitet wird ---
+    // (Timing so, dass der Sound hörbar ist, aber die Weiterleitung flüssig bleibt)
+    setTimeout(()=>{
+      if (k % 2 === 0) { // Aperol => Rom
+        sTa.currentTime = 0; sTa.volume = 0.9; sTa.play().catch(()=>{});
+      } else {           // Bier => London
+        sCh.currentTime = 0; sCh.volume = 0.9; sCh.play().catch(()=>{});
+      }
+    }, 3800);
+
+    // Weiterleiten nach Ende der Dreh-Animation
+    setTimeout(()=>{
+      if (k % 2 === 0) {
+        window.location.href = 'rom/index.html';
+      } else {
+        window.location.href = 'london/index.html#autoplay=1';
+      }
+    }, 4700);
+  });
+</script>
 </body>
 </html>
