@@ -1,106 +1,58 @@
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Überraschung – Dreh das Rad!</title>
-  <link rel="stylesheet" href="assets/common.css" />
-  <style>
-    .wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px}
-    .wheel{
-      width:min(520px,90vw);aspect-ratio:1;border-radius:50%;border:10px solid #000;position:relative;overflow:hidden;
-      box-shadow:0 10px 0 #000;
-      /* 🍹 / 🍺 / 🎿 – drei Farben im Wechsel, je 30° (12 Segmente) */
-      background:repeating-conic-gradient(
-        #ff9ec4 0deg 30deg,  /* Aperol */
-        #b3e5fc 30deg 60deg, /* Bier */
-        #ffffff 60deg 90deg  /* Ski */
-      );
-      transition:transform 4.6s cubic-bezier(.2,.9,.2,1.02);
-    }
-    .needle{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:32px solid #000;margin:0 auto}
-    .em{position:absolute;font-size:32px;filter:drop-shadow(1px 1px 0 #000)}
-  </style>
-</head>
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Ski-Schnitzeljagd ⛷️❄️</title>
+<link rel="stylesheet" href="../assets/common.css"/>
+<link rel="stylesheet" href="assets/ski.css"/>
+</head><body>
+<canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;display:none"></canvas>
+<canvas id="snow-canvas" style="position:fixed;inset:0;pointer-events:none;display:none"></canvas>
 
-<body>
-  <div class="container">
-    <div class="badge">Design by Dennis™</div>
-    <h1>Dreh das Glücksrad! 🎯</h1>
-    <div class="marquee"><span>🍹 oder 🍺 oder 🎿 — keine Spoiler — nur drehen! — </span></div>
-    <p>Rundum alternierend: DEIN GLÜCK ENTSCHEIDET …</p>
+<div class="container">
+  <div class="badge">Uschi-Design™</div>
+  <h1>Servus Alina ❄️ – Bist du bereit für eine mini Schnitzeljagd?</h1>
+  <div class="marquee"><span>Pisten-Pizza • Sessellift • Hüttengaudi • Kakao • </span></div>
 
-    <div class="needle" aria-hidden="true"></div>
-    <div class="wheel-wrap">
-      <div class="wheel" id="wheel" aria-label="Glücksrad mit drei alternierenden Feldern"></div>
-      <button class="btn" id="spin">🎲 Drehen!</button>
-    </div>
+  <div class="nav-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
 
-    <footer>Made with 💖 by Chaddy und Dennis -  Viel Glück ;-)!</footer>
-  </div>
+  <section class="section">
+    <p>Warm anziehen und durchklicken – am Ende gibt’s die Überraschung.</p>
+    <div class="hint-emoji">🎁✨</div>
+    <div class="button-row"><a class="btn" data-next>👉 Weiter!</a></div>
+  </section>
 
-  <!-- 🔊 Sounds -->
-  <audio id="s_jingle" src="assets/jingle.mp3" preload="auto"></audio>
-  <audio id="s_tadaa"  src="assets/tadaa.mp3" preload="auto"></audio>
-  <audio id="s_cheers" src="assets/cheers.mp3" preload="auto"></audio>
+  <section class="section">
+    <h2>Hinweis #1: Es geht bergauf…</h2>
+    <p>Man hängt in der Luft und blickt auf weiße Hänge.</p>
+    <div class="hint-emoji">🚡🏔️❄️</div>
+    <div class="button-row"><a class="btn" data-prev>⬅️ Zurück</a><a class="btn" data-next>👉 Weiter!</a></div>
+  </section>
 
-  <script>
-    // 🌀 Glücksrad: 12 Segmente (🍹 Aperol / 🍺 Bier / 🎿 Ski)
-    const wheel = document.getElementById('wheel');
-    const segments = 12, segAngle = 360 / segments;
+  <section class="section">
+    <h2>Hinweis #2: Bretter, die die Welt bedeuten</h2>
+    <p>Zwei Stöcke, zwei Latten – Pizza vs. Pommes! 😅</p>
+    <div class="hint-emoji">⛷️🎿❄️</div>
+    <div class="button-row"><a class="btn" data-prev>⬅️ Zurück</a><a class="btn" data-next>👉 Weiter!</a></div>
+  </section>
 
-    for (let i = 0; i < segments; i++) {
-      const el = document.createElement('div');
-      el.className = 'em';
-      el.textContent = (i % 3 === 0) ? '🍹' : (i % 3 === 1) ? '🍺' : '🎿';
-      const angle = (i * segAngle) * Math.PI / 180;
-      const R = 0.38;
-      el.style.left = (50 + Math.sin(angle) * R * 100) + '%';
-      el.style.top  = (50 - Math.cos(angle) * R * 100) + '%';
-      el.style.transform = 'translate(-50%, -50%)';
-      wheel.appendChild(el);
-    }
+  <section class="section">
+    <h2>Hinweis #3: Aufwärmen muss sein</h2>
+    <p>Heiße Tasse, rote Bäckchen, Kaiserschmarrn?</p>
+    <div class="hint-emoji">☕️🍰🏔️</div>
+    <div class="button-row"><a class="btn" data-prev>⬅️ Zurück</a><a class="btn" data-next>👉 Weiter!</a></div>
+  </section>
 
-    const spinBtn = document.getElementById('spin');
-    const sJ = document.getElementById('s_jingle');
-    const sT = document.getElementById('s_tadaa');
-    const sC = document.getElementById('s_cheers');
+  <section class="section" data-finale="1">
+    <h2>🎉 Juhu! Rätsel gelöst!</h2>
+    <p>Pack die Handschuhe ein: Wir machen einen <strong>SKI-TRIP</strong> – Powder, Panorama & Hüttengaudi! ⛷️❄️</p>
+    <div class="hint-emoji">⛷️🏂🗻❤️</div>
+    <div class="button-row"><a class="btn" data-prev>⬅️ Zurück</a><a class="btn" href="../index.html">🏠 Start</a></div>
+  </section>
 
-    // 🔊 Jingle beim Öffnen (mit Fallback bei erster Interaktion)
-    function play(a){ try{ a.currentTime=0; a.volume=0.9; const p=a.play(); if(p&&p.catch) p.catch(()=>{});}catch(e){} }
-    function playJingleOnce(){ if(sJ.dataset.played==="1") return; sJ.dataset.played="1"; play(sJ); }
-    window.addEventListener('load', () => setTimeout(playJingleOnce, 400));
-    ['click','pointerdown','touchstart','keydown'].forEach(ev=>{
-      document.addEventListener(ev, playJingleOnce, { once:true, passive:true });
-    });
+  <footer>Made with ❄️ & Kakao</footer>
+</div>
 
-    // 🎯 Drehen + Ergebnis-Sounds + Weiterleitung
-    let spinning = false;
-    spinBtn.addEventListener('click', () => {
-      if (spinning) return;
-      spinning = true;
-
-      const k = Math.floor(Math.random() * segments);   // 0..11
-      const turns = 6 + Math.random() * 2;
-      const targetDeg = (segments - k) * segAngle - segAngle / 2;
-      const angle = 360 * turns + targetDeg;
-      wheel.style.transform = `rotate(${angle.toFixed(2)}deg)`;
-
-      // 🔊 Ergebnis-Sound (🍹 = tadaa, 🍺 = cheers, 🎿 = kein separater Effekt)
-      setTimeout(() => {
-        if (k % 3 === 0)      play(sT); // Aperol -> Rom
-        else if (k % 3 === 1) play(sC); // Bier   -> London
-        // else (k % 3 === 2)  // Ski -> kein kurzer Effekt nötig
-      }, 3800);
-
-      // 🔁 Weiterleitung nach Ende
-      setTimeout(() => {
-        try { sJ.pause(); } catch(e) {}
-        if (k % 3 === 0)      window.location.href = 'rom/index.html';
-        else if (k % 3 === 1) window.location.href = 'london/index.html#autoplay=1';
-        else                  window.location.href = 'ski/index.html#autoplay=1';
-      }, 4700);
-    });
-  </script>
-</body>
-</html>
+<audio id="bgmusic" src="assets/skifahrn.mp3" preload="auto" loop></audio>
+<script src="assets/confetti.js"></script>
+<script src="assets/snow.js"></script>
+<script src="assets/ski.js"></script>
+</body></html>
