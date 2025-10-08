@@ -151,10 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const k = Math.floor(Math.random()*segments); // 0..11
     const turns = 6 + Math.random()*2;
-    const targetUp = (segments - k)*SEG - SEG/2;  // Segmentzentrum auf 12-Uhr
-    const angle = 360*turns + targetUp + 180;     // +180°, da Pointer nach unten zeigt
-
+    const targetTop = (segments - k) * SEG - SEG/2;
+    const angle = 360*turns + targetTop;        // <-- KORREKT für Zeiger oben
     setRot(angle);
+
 
     setTimeout(()=>{ if(k%3===0) sT?.play().catch(()=>{}); else if(k%3===1) sC?.play().catch(()=>{}); },3800);
 
