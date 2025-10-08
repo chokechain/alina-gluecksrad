@@ -144,27 +144,36 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener(ev,function once(){ unmute(); window.removeEventListener(ev,once,{capture:false}); },{once:true,passive:true});
   });
 
-  /* Drehen + korrektes Mapping (Zeiger oben → zeigt nach unten ⇒ +180°) */
-  let spinning=false;
-  spin.addEventListener('click',()=>{
-    if(spinning) return; spinning=true; unmute();
+/* Drehen + EXAKTES Mapping (🍹→Rom, 🍺→London, 🎿→Ski) */
+let spinning = false;
+spin.addEventListener('click', () => {
+  if (spinning) return;
+  spinning = true; unmute();
 
-    const k = Math.floor(Math.random()*segments); // 0..11
-    const turns = 6 + Math.random()*2;
-    const targetTop = (segments - k) * SEG - SEG/2;
-    const angle = 360*turns + targetTop;        // <-- KORREKT für Zeiger oben
-    setRot(angle);
+  // 0 = 🍹 Rom, 1 = 🍺 London, 2 = 🎿 Ski
+  const outcome = Math.floor(Math.random() * 3);
 
+  // Einen der vier passenden Keile (insg. 12) wählen: j%3 === outcome
+  const group = Math.floor(Math.random() * 4);   // 0..3
+  const j = outcome + 3 * group;                 // 0..11
 
-    setTimeout(()=>{ if(k%3===0) sT?.play().catch(()=>{}); else if(k%3===1) sC?.play().catch(()=>{}); },3800);
+  const turns = 6 + Math.random() * 2;
 
-    setTimeout(()=>{
-      if (k%3===0)      location.href='rom/index.html';                 // 🍹 -> Rom
-      else if (k%3===1) location.href='london/index.html#autoplay=1';   // 🍺 -> London
-      else              location.href='ski/index.html#autoplay=1';      // 🎿 -> Ski
-    },4700);
-  });
-});
+  // Zeiger ist OBEN → „oben“ entspricht -90° in Rad-Koordinaten
+  // Keilzentrum = (j + 0.5) * SEG
+  const angle = 360 * turns - 90 - (j + 0.5) * SEG;
+  setRot(angle);
+
+  // kurzer Effekt-Sound kurz vor Stopp
+  setTimeout(() => {
+    if (outcome === 0) sT?.play().catch(()=>{});  // 🍹 Rom
+    if (outcome === 1) sC?.play().catch(()=>{});  // 🍺 London
+  }, 3800);
+
+  // Weiterleitung
+  setTimeout(() => {
+    if (outcome === 0)      location.href = 'rom/index.html';
+    else if (outcome === 1) location.href = 'london/index.html#aut
 </script>
 </body>
 </html>
