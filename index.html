@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const ang = (i/N)*360 * Math.PI/180;
       const x = 50 + Math.sin(ang)*R;
       const y = 50 - Math.cos(ang)*R;
-      b.style.left = `calc(${x}% - 10px)`; // 10px = radius bulb/2
+      b.style.left = `calc(${x}% - 10px)`;
       b.style.top  = `calc(${y}% - 10px)`;
       rim.appendChild(b);
     }
@@ -144,24 +144,35 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener(ev,function once(){ unmute(); window.removeEventListener(ev,once,{capture:false}); },{once:true,passive:true});
   });
 
-  /* Drehen + korrektes Mapping (Zeiger oben → zeigt nach unten ⇒ +180°) */
+  /* Drehen – Segment aus dem Endwinkel bestimmen (robust) */
   let spinning=false;
   spin.addEventListener('click',()=>{
     if(spinning) return; spinning=true; unmute();
 
-    const k = Math.floor(Math.random()*segments); // 0..11
     const turns = 6 + Math.random()*2;
-    const targetTop = (segments - k) * SEG - SEG/2;
-    const angle = 360*turns + targetTop;        // <-- KORREKT für Zeiger oben
+    const randomK = Math.floor(Math.random()*segments);     // 0..11 (nur für Zielwahl)
+    const targetTop = (segments - randomK) * SEG - SEG/2;   // Segmentzentrum nach oben
+    const angle = 360*turns + targetTop;
+
+    // drehen
     setRot(angle);
 
+    // Endwinkel normalisieren und Segment unter dem Zeiger bestimmen
+    const final = ((angle % 360) + 360) % 360;                 // 0..359
+    const selected = Math.floor((final + SEG/2) / SEG) % segments; // 0..11
+    const kind = selected % 3; // 0=🍹, 1=🍺, 2=🎿
 
-    setTimeout(()=>{ if(k%3===0) sT?.play().catch(()=>{}); else if(k%3===1) sC?.play().catch(()=>{}); },3800);
-
+    // kurzer Effekt-Sound vor Redirect
     setTimeout(()=>{
-      if (k%3===0)      location.href='rom/index.html';                 // 🍹 -> Rom
-      else if (k%3===1) location.href='london/index.html#autoplay=1';   // 🍺 -> London
-      else              location.href='ski/index.html#autoplay=1';      // 🎿 -> Ski
+      if (kind===0) sT?.play().catch(()=>{});   // 🍹 -> tadaa
+      else if (kind===1) sC?.play().catch(()=>{}); // 🍺 -> cheers
+    },3800);
+
+    // Weiterleitung
+    setTimeout(()=>{
+      if (kind===0)      location.href='rom/index.html';                 // 🍹 Rom
+      else if (kind===1) location.href='london/index.html#autoplay=1';   // 🍺 London
+      else               location.href='ski/index.html#autoplay=1';      // 🎿 Ski
     },4700);
   });
 });
